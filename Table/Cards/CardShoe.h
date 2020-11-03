@@ -17,10 +17,9 @@ public:
 //    void Form();
     void Shuffle();
     Card& DrawCard(bool hidden = false);
-    int GetRemainingCardCount() const {return _remainingCardCount;};
+    int GetRemainingCardCount() const {return _cards.size() - _cardIndex;};
 private:
     std::vector<Card> _cards;
-    int _remainingCardCount;
     int _cardIndex = 0;
     static const int _deckCardCount = 52;
     static const int _defaultDeckCount = 4;
