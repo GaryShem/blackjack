@@ -8,7 +8,7 @@ class CardShoe
 {
 public:
     const int DeckCount;
-    const int shuffleThreshold;
+    const int ShuffleThreshold;
 
     CardShoe(int deckCount, int shuffleThreshold);
     explicit CardShoe(int deckCount) : CardShoe(deckCount, _defaultDeckCount * _deckCardCount / 3){};
@@ -17,7 +17,7 @@ public:
 //    void Form();
     void Shuffle();
     Card& DrawCard(bool hidden = false);
-    int GetRemainingCardCount() const {return _cards.size() - _cardIndex;};
+    int GetRemainingCardCount() const;
 private:
     std::vector<Card> _cards;
     int _cardIndex = 0;

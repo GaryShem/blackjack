@@ -1,7 +1,8 @@
 #include "Card.h"
 #include "IPlayer.h"
+#include "IDealer.h"
 
-void IPlayer::AcceptCard(Card card)
+void IPlayer::AcceptCard(Card& card)
 {
     _hand.AddCard(card);
 }

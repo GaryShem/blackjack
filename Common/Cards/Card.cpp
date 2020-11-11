@@ -6,14 +6,14 @@ Card& Card::operator=(const Card &card)
     {
         _rank = card._rank;
         _suit = card._suit;
-        IsHidden = card.IsHidden;
+        _isHidden = card._isHidden;
     }
     return *this;
 }
 
-int Card::GetSoftValue()
+int Card::GetSoftValue() const
 {
-    if (IsHidden)
+    if (_isHidden)
     {
         return 0;
     }
@@ -61,24 +61,24 @@ int Card::GetSoftValue()
     return result;
 }
 
-Ranks Card::Rank()
+Ranks Card::Rank() const
 {
     return _rank;
 }
 
-Suits Card::Suit()
+Suits Card::Suit() const
 {
     return _suit;
 }
 
-std::string Card::ToString()
+std::string Card::ToString() const
 {
     std::string result;
     std::string rank;
     std::string suit;
 
     //if the card is facedown, don't show rank or suit
-    if (IsHidden)
+    if (_isHidden)
     {
         result = "??";
         return result;
@@ -159,4 +159,19 @@ std::string Card::ToString()
     //combine rank and suit
     result = rank + suit;
     return result;
+}
+
+void Card::Hide()
+{
+    _isHidden = true;
+}
+
+void Card::Reveal()
+{
+    _isHidden = false;
+}
+
+bool Card::IsHidden() const
+{
+    return _isHidden;
 }

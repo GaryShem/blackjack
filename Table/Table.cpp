@@ -20,7 +20,7 @@ int Table::CalculatePlayerWinnings(int playerIndex)
     while (true)
     {
         dealer.PlayRound(players, shoe);
-        if (shoe.GetRemainingCardCount() < shoe.shuffleThreshold)
+        if (shoe.GetRemainingCardCount() < shoe.ShuffleThreshold)
         {
             shoe.Shuffle();
         }

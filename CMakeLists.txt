@@ -3,7 +3,8 @@ project(blackjack)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_subdirectory(Table Table)
+add_subdirectory(Common)
+add_subdirectory(Table)
 
 add_executable(blackjack main.cpp)
 

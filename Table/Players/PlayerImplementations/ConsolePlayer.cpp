@@ -1,46 +1,27 @@
 #include "ConsolePlayer.h"
 #include <iostream>
 
-PlayerDecisions ConsolePlayer::GetPlayerDecision(Hand dealerHand, std::vector<IPlayer *> players, int playerIndex)
-{
-    PrintGameState(dealerHand, players, playerIndex);
 
-    while (true)
-    {
-        std::cout << "What is your decision? (hit/stand): ";
-        std::string input;
-        std::getline(std::cin, input);
-        if (input == "hit")
-        {
-            return PlayerDecisions::Hit;
-        }
-        else if (input == "stand")
-        {
-            return PlayerDecisions::Stand;
-        }
-        else
-        {
-            std::cout << "incorrect input, please choose hit or stand" << std::endl;
-        }
-    }
-    return PlayerDecisions::Stand;
-}
-
-void ConsolePlayer::PrintGameState(Hand dealerHand, std::vector<IPlayer *> players, int playerIndex)
+void ConsolePlayer::PrintGameState(IDealer* dealer, std::vector<IPlayer *> players)
 {
     std::cout << std::endl;
-    std::cout << "Dealer: " << dealerHand.ToString() << std::endl;
+    std::cout << "Dealer: " << dealer->GetHand().ToString() << std::endl;
+    int playerIndex = -1;
     for (int i = 0; i < players.size(); i++)
     {
         IPlayer* player = players[i];
+        if (player == this)
+        {
+            playerIndex = i;
+        }
         std::cout << "Player " << i << ": " << player->GetHand().ToString() << std::endl;
     }
     std::cout << "You are Player " << playerIndex << std::endl;
 }
 
-void ConsolePlayer::UpdateGameState(Hand dealerHand, std::vector<IPlayer *> players, int playerIndex)
+void ConsolePlayer::UpdateGameState(IDealer* dealer, std::vector<IPlayer *> players)
 {
-    PrintGameState(dealerHand, players, playerIndex);
+    PrintGameState(dealer, players);
 }
 
 void ConsolePlayer::ReportResult(RoundResult roundResult)
@@ -60,4 +41,49 @@ void ConsolePlayer::ReportResult(RoundResult roundResult)
             break;
     }
     std::cout << std::endl << message << std::endl;
+}
+
+void ConsolePlayer::Play(IDealer *dealer, std::vector<IPlayer *> &players)
+{
+    PlayerDecisions decision;
+    do
+    {
+        PrintGameState(dealer, players);
+        decision = GetDecision(dealer, players);
+        switch (decision)
+        {
+
+            case Hit:
+                dealer->DealFaceupCard(this);
+                break;
+            case Stand:
+                break;
+            default:
+                throw std::exception("unprocessed player decision");
+                break;
+        }
+    }
+    while (!IsBusted() && decision != PlayerDecisions::Stand);
+}
+
+PlayerDecisions ConsolePlayer::GetDecision(IDealer *dealer, std::vector<IPlayer *> &players)
+{
+    while (true)
+    {
+        std::cout << "What is your decision? (hit/stand): ";
+        std::string input;
+        std::getline(std::cin, input);
+        if (input == "hit")
+        {
+            return PlayerDecisions::Hit;
+        }
+        else if (input == "stand")
+        {
+            return PlayerDecisions::Stand;
+        }
+        else
+        {
+            std::cout << "incorrect input, please choose hit or stand" << std::endl;
+        }
+    }
 }

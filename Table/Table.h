@@ -1,8 +1,7 @@
 #ifndef BLACKJACK_TABLE_H
 #define BLACKJACK_TABLE_H
 
-#include <Cards/CardShoe.h>
-//#include "AntiCircular.h"
+#include <CardShoe.h>
 #include "Dealer.h"
 #include "IPlayer.h"
 

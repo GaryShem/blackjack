@@ -9,11 +9,13 @@
 class Hand
 {
 public:
-    std::vector<Card>& Cards();
-    int GetSum();
+    const std::vector<Card>& Cards() const;
+    int GetSum() const;
+    bool IsBlackjack() const;
     void AddCard(const Card& card);
+    void Reveal();
     void Clear();
-    std::string ToString();
+    std::string ToString() const;
 private:
     std::vector<Card> _cards;
 };

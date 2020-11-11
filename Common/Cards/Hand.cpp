@@ -1,12 +1,12 @@
 #include "Hand.h"
 
-std::vector<Card>& Hand::Cards()
+const std::vector<Card>& Hand::Cards() const
 {
-    //return a copy to prevent shenanigans
+    //return const reference to prevent random errors
     return _cards;
 }
 
-int Hand::GetSum()
+int Hand::GetSum() const
 {
     int aceCount = 0;
     int result = 0;
@@ -31,10 +31,10 @@ void Hand::AddCard(const Card& card)
     _cards.push_back(card);
 }
 
-std::string Hand::ToString()
+std::string Hand::ToString() const
 {
     std::string result;
-    for (auto card : _cards)
+    for (const Card& card : _cards)
     {
         if (result.empty())
         {
@@ -52,4 +52,17 @@ std::string Hand::ToString()
 void Hand::Clear()
 {
     _cards.clear();
+}
+
+void Hand::Reveal()
+{
+    for (auto& card : _cards)
+    {
+        card.Reveal();
+    }
+}
+
+bool Hand::IsBlackjack() const
+{
+    return GetSum() == 21 && _cards.size() == 2;
 }

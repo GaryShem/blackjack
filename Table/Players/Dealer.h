@@ -2,23 +2,30 @@
 #define BLACKJACK_DEALER_H
 
 #include "IPlayer.h"
+#include "IDealer.h"
 #include "CardShoe.h"
 
 
-class Dealer : public IPlayer
+class Dealer : public IDealer
 {
 public:
-    PlayerDecisions GetPlayerDecision(Hand dealerHand, std::vector<IPlayer*> players, int playerIndex) override;
-    void PlayRound(const std::vector<IPlayer*>& players, CardShoe &shoe);
+    virtual void PlayRound(std::vector<IPlayer*>& players, CardShoe &shoe) override;
+    virtual void Play(IDealer* dealer, std::vector<IPlayer*>& players) override;
 
-    void UpdateGameState(Hand dealerHand, std::vector<IPlayer *> players, int playerIndex) override;
+    virtual void UpdateGameState(IDealer* dealer, std::vector<IPlayer *> players) override;
 
-    void ReportResult(RoundResult roundResult) override;
+    virtual void ReportResult(RoundResult roundResult) override;
+
+    void DealFaceupCard(IPlayer *player) override;
+
+protected:
+    void DealFacedownCard(IPlayer *player) override;
 
 private:
-    void DealCard(IPlayer* player, Card& card);
     void RevealCard();
-    void ClearAllHands(std::vector<IPlayer*> players);
+    void ClearAllHands(std::vector<IPlayer*>& players);
+    PlayerDecisions GetDecision();
+    CardShoe* _shoe;
 };
 
 
