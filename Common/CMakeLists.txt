@@ -1,4 +1,4 @@
 project(common)
 
 add_subdirectory(Cards)
-add_subdirectory(Basics)
+#target_link_libraries(common cards)

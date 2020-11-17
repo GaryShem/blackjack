@@ -6,20 +6,16 @@
 #include <string>
 #include "Card.h"
 
-
 class Hand
 {
 public:
     const std::vector<Card>& Cards() const;
     int GetSum() const;
-    int GetHiddenSum() const;
-    bool IsNatural() const;
+    bool IsBlackjack() const;
     void AddCard(const Card& card);
     void Reveal();
     void Clear();
     std::string ToString() const;
-    Card& DrawCard();
-//    Bet HandBet;
 private:
     std::vector<Card> _cards;
 };

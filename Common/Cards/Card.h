@@ -12,21 +12,13 @@ enum Suits
     Spades, Clubs, Diamonds, Hearts, HiddenSuit
 };
 
-class Hand;
-
 class Card
 {
-    friend Hand;
-
 public:
     Card(Ranks rank, Suits suit, bool isHidden = false) : _rank(rank), _suit(suit), _isHidden(isHidden){};
     Card(const Card& card) : Card(card._rank, card._suit, card._isHidden) {};
 
     Card& operator=(Card const& card);
-
-    bool operator==(const Card &rhs) const;
-    bool operator!=(const Card &rhs) const;
-
     int GetSoftValue() const;
 
     void Hide();
@@ -36,10 +28,7 @@ public:
     Suits Suit() const;
 
     std::string ToString() const;
-
 private:
-    int GetHiddenSoftValue() const;
-
     bool _isHidden;
     Ranks _rank;
     Suits _suit;

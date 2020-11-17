@@ -4,9 +4,8 @@
 
 int main()
 {
-    Table table(10);
+    Table table(4);
     table.AddPlayer(new ConsolePlayer());
     table.PlayGame();
-    std::cout << "No more players left, finishing game" << std::endl;
     return 0;
 }

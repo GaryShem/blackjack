@@ -2,29 +2,21 @@
 #define BLACKJACK_TABLE_H
 
 #include <CardShoe.h>
-#include <GameState.h>
 #include "Dealer.h"
+#include "IPlayer.h"
 
 class Table
 {
 public:
-    explicit Table(int minBet);
-    ~Table();
+    explicit Table(int deckCount);
+    CardShoe shoe;
+    Dealer dealer;
+    std::vector<IPlayer*> players;
 
-    void AddPlayer(Player* player);
-    void RemovePlayer(int position);
+    void AddPlayer(IPlayer* player);
+    int CalculatePlayerWinnings(int playerIndex);
 
-    void PlayGame();
-
-private:
-    CardShoe _shoe;
-    std::vector<Player*> _players;
-    Dealer* _dealer;
-    GameState* _gameState;
-    int _minimumBet;
-
-    void KickBeggars();
-    void EnumeratePlayers();
+    [[noreturn]] void PlayGame();
 };
 
 

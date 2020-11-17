@@ -4,7 +4,7 @@ add_library(table Table.cpp Table.h)
 
 target_include_directories(table PUBLIC .)
 
-target_link_libraries(table cards basics)
+target_link_libraries(table cards)
 
 add_subdirectory(Players)
 target_link_libraries(table players)
