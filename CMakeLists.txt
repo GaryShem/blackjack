@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(Common)
 add_subdirectory(Table)
+add_subdirectory(googletest)
 
 add_executable(blackjack main.cpp)
 

@@ -14,12 +14,26 @@ Card &CardShoe::DrawCard(bool hidden)
     {
         card.Reveal();
     }
+    _isJustShuffled = false;
     return card;
 }
 
 void CardShoe::Shuffle()
 {
-    _cards.clear();
+    static std::random_device rd;
+    static std::mt19937 mt(rd());
+    for (auto& card : _cards)
+    {
+        card.Hide();
+    }
+    std::shuffle(_cards.begin(), _cards.end(), mt);
+    _cardIndex = 0;
+    _isJustShuffled = true;
+}
+
+CardShoe::CardShoe(int deckCount, int shuffleThreshold) : DeckCount(deckCount), ShuffleThreshold(shuffleThreshold)
+{
+    _cards.reserve(DeckCount * DeckCardCount);
     for (int rank = Ranks::A; rank < Ranks::HiddenRank; rank++)
     {
         for (int suit = Suits::Spades; suit < Suits::HiddenSuit; suit++)
@@ -32,20 +46,16 @@ void CardShoe::Shuffle()
             }
         }
     }
-    static std::random_device rd;
-    static std::mt19937 mt(rd());
-    std::shuffle(_cards.begin(), _cards.end(), mt);
-    _cardIndex = 0;
-}
-
-CardShoe::CardShoe(int deckCount, int shuffleThreshold) : DeckCount(deckCount), ShuffleThreshold(shuffleThreshold)
-{
-
     Shuffle();
 }
 
 int CardShoe::GetRemainingCardCount() const
 {
     return _cards.size() - _cardIndex;
+}
+
+bool CardShoe::IsJustShuffled()
+{
+    return _isJustShuffled;
 }
 

@@ -1,6 +1,6 @@
 #include "Card.h"
 
-Card& Card::operator=(const Card &card)
+Card &Card::operator=(const Card &card)
 {
     if (this != &card)
     {
@@ -17,58 +17,31 @@ int Card::GetSoftValue() const
     {
         return 0;
     }
-
-    int result = 0;
-    switch (_rank)
-    {
-        case A:
-            result = 11;
-            break;
-        case _2:
-            result = 2;
-            break;
-        case _3:
-            result = 3;
-            break;
-        case _4:
-            result = 4;
-            break;
-        case _5:
-            result = 5;
-            break;
-        case _6:
-            result = 6;
-            break;
-        case _7:
-            result = 7;
-            break;
-        case _8:
-            result = 8;
-            break;
-        case _9:
-            result = 9;
-            break;
-        case _10:
-        case J:
-        case Q:
-        case K:
-            result = 10;
-            break;
-        case HiddenRank:
-            result = 0;
-            break;
-    }
-    return result;
+    return GetHiddenSoftValue();
 }
 
 Ranks Card::Rank() const
 {
-    return _rank;
+    if (_isHidden)
+    {
+        return Ranks::HiddenRank;
+    }
+    else
+    {
+        return _rank;
+    }
 }
 
 Suits Card::Suit() const
 {
-    return _suit;
+    if (_isHidden)
+    {
+        return Suits::HiddenSuit;
+    }
+    else
+    {
+        return _suit;
+    }
 }
 
 std::string Card::ToString() const
@@ -77,17 +50,8 @@ std::string Card::ToString() const
     std::string rank;
     std::string suit;
 
-    //if the card is facedown, don't show rank or suit
-    if (_isHidden)
-    {
-        result = "??";
-        return result;
-    }
-
-    //otherwise form rank/suit combination
-
     //get rank
-    switch (_rank)
+    switch (Rank())
     {
         case A:
             rank = "A";
@@ -135,7 +99,7 @@ std::string Card::ToString() const
     }
 
     //get suit
-    switch (_suit)
+    switch (Suit())
     {
 
         case Spades:
@@ -175,3 +139,62 @@ bool Card::IsHidden() const
 {
     return _isHidden;
 }
+
+bool Card::operator==(const Card &rhs) const
+{
+    return _isHidden == rhs._isHidden &&
+           _rank == rhs._rank &&
+           _suit == rhs._suit;
+}
+
+bool Card::operator!=(const Card &rhs) const
+{
+    return !(rhs == *this);
+}
+
+int Card::GetHiddenSoftValue() const
+{
+    int result = 0;
+    switch (_rank)
+    {
+        case A:
+            result = 11;
+            break;
+        case _2:
+            result = 2;
+            break;
+        case _3:
+            result = 3;
+            break;
+        case _4:
+            result = 4;
+            break;
+        case _5:
+            result = 5;
+            break;
+        case _6:
+            result = 6;
+            break;
+        case _7:
+            result = 7;
+            break;
+        case _8:
+            result = 8;
+            break;
+        case _9:
+            result = 9;
+            break;
+        case _10:
+        case J:
+        case Q:
+        case K:
+            result = 10;
+            break;
+        case HiddenRank:
+            result = 0;
+            break;
+    }
+    return result;
+}
+
+
