@@ -43,3 +43,9 @@ std::string TcpUtil::ReceiveMsg()
     _messages.pop();
     return result;
 }
+
+TcpUtil::~TcpUtil()
+{
+    closesocket(_socket);
+    delete[] _buf;
+}

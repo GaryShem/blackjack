@@ -16,26 +16,19 @@
 #include "json.hpp"
 #include "PlayerProxy.h"
 
-void TcpPlayerClient::PlayerUpdated(PlayerProxy* player)
+void TcpPlayerClient::PlayerUpdated(std::shared_ptr<PlayerProxy> player)
 {
     if (player->isDealer)
     {
-        PlayerProxy* temp = _dealerProxy;
         _dealerProxy = player;
-        if (temp != nullptr)
-        {
-            delete temp;
-        }
     }
     else
     {
         for (int i = 0; i < _playerProxies.size(); i++)
         {
-            PlayerProxy* temp = _playerProxies[i];
-            if (temp->id == player->id)
+            if (_playerProxies.at(i)->id == player->id)
             {
                 _playerProxies[i] = player;
-                delete temp;
                 return;
             }
         }
@@ -175,16 +168,11 @@ void TcpPlayerClient::AskForName()
     std::getline(std::cin, _name);
 }
 
-TcpPlayerClient::~TcpPlayerClient()
-{
-    closesocket(_socket);
-}
-
-PlayerProxy* TcpPlayerClient::Deserialize(std::string serializedPlayer)
+std::shared_ptr<PlayerProxy> TcpPlayerClient::Deserialize(std::string serializedPlayer)
 {
     nlohmann::json j = nlohmann::json::parse(serializedPlayer);
 //    std::cout << j.dump(4) << std::endl;
-    PlayerProxy* proxy = new PlayerProxy;
+    std::shared_ptr<PlayerProxy> proxy = std::make_shared<PlayerProxy>();
     proxy->isDealer = j["data"]["isDealer"];
     if (!proxy->isDealer)
     {
@@ -272,10 +260,10 @@ bool TcpPlayerClient::Process()
     }
     else if (j["command"] == "PlayerList")
     {
-        std::vector<PlayerProxy*> playerList;
+        std::vector<std::shared_ptr<PlayerProxy>> playerList;
         for (auto it : j["data"]["Players"])
         {
-            PlayerProxy* proxy = new PlayerProxy();
+            std::shared_ptr<PlayerProxy> proxy = std::make_shared<PlayerProxy>();
             proxy->name = it["name"];
             proxy->id = it["id"];
             proxy->bank = it["bank"];
@@ -297,7 +285,7 @@ bool TcpPlayerClient::Process()
     return true;
 }
 
-PlayerProxy* TcpPlayerClient::OwnProxy()
+std::shared_ptr<PlayerProxy> TcpPlayerClient::OwnProxy()
 {
     for (auto proxy : _playerProxies)
     {
@@ -322,19 +310,15 @@ void TcpPlayerClient::PrintGameState()
         std::cout << "Bet: " << proxy->bet << " Insurance: " << (proxy->insurance ? "true" : "false") << " Bank: "
                   << proxy->bank << std::endl;
     }
-    PlayerProxy* ownProxy = OwnProxy();
+    std::shared_ptr<PlayerProxy> ownProxy = OwnProxy();
     if (ownProxy != nullptr)
     {
         std::cout << "You are Player (" << OwnProxy()->name << ", " << OwnProxy()->id << ")" << std::endl;
     }
 }
 
-void TcpPlayerClient::PlayerList(std::vector<PlayerProxy*> players)
+void TcpPlayerClient::PlayerList(std::vector<std::shared_ptr<PlayerProxy>> players)
 {
-    for (auto player : _playerProxies)
-    {
-        delete player;
-    }
     _playerProxies = std::move(players);
     PrintGameState();
 }

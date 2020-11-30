@@ -16,6 +16,7 @@ public:
     void SendMsg(std::string message);
     std::string ReceiveMsg();
 
+    virtual ~TcpUtil();
 protected:
     std::queue<std::string> _messages;
     SOCKET _socket;
