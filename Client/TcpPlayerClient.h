@@ -23,7 +23,7 @@ public:
     PlayerDecision GetDecision();
     int RequestStartingBet(int minBet, int maxBet);
     bool RequestInsuranceBet();
-    void Connect(std::string ip = "127.0.0.1", u_short port = 8888);
+    void Connect(std::string ip = "127.0.0.1", u_short port = 8005);
     void AskForName();
     bool Process();
     PlayerProxy* OwnProxy();

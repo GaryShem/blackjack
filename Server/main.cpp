@@ -29,8 +29,16 @@ int main(int argc, char *argv[])
 
     int playerLimit = std::stoi(std::string(argv[1]));
 
+    std::string portString;
+    int port = 8005;
+    if (argc >= 3)
+    {
+        portString = argv[2];
+        port = std::stoi(portString);
+    }
+
     Table table(10, 100);
-    table.AcceptTcpPlayers(playerLimit);
+    table.AcceptTcpPlayers(playerLimit, port);
     table.PlayGame(5);
 
     return 0;

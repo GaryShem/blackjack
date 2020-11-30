@@ -11,8 +11,8 @@ public:
     explicit Table(int minBet, int maxBet);
     ~Table();
 
-    void AcceptTcpPlayers(int playerCount);
-    void AddPlayer(IPlayer* player);
+    void AcceptTcpPlayers(int playerCount, u_short port = 8888);
+    void AddPlayer(IPlayer* player, bool assignId = true);
     void RemovePlayer(IPlayer* player);
 
     void PlayGame(int roundLimit);

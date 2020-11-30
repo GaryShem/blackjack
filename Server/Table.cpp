@@ -12,9 +12,12 @@ Table::Table(int minBet, int maxBet)
     _dealer = new Dealer(_shoe, minBet, maxBet);
 }
 
-void Table::AddPlayer(IPlayer* player)
+void Table::AddPlayer(IPlayer* player, bool assignId)
 {
-//    player->SetId(std::to_string(_nextId++));
+    if (assignId)
+    {
+        player->SetId(GenerateId());
+    }
     _dealer->AddPlayer(player);
     _players.push_back(player);
 }
@@ -66,7 +69,7 @@ std::string Table::GenerateId()
     return std::to_string(_nextId++);
 }
 
-void Table::AcceptTcpPlayers(int playerCount)
+void Table::AcceptTcpPlayers(int playerCount, u_short port)
 {
     SOCKET listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener == INVALID_SOCKET)
@@ -77,7 +80,7 @@ void Table::AcceptTcpPlayers(int playerCount)
     sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(8888);
+    server_addr.sin_port = htons(port);
     server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
 
     if (bind(listener, (sockaddr*)&server_addr, sizeof(server_addr)) < 0)
@@ -108,7 +111,7 @@ void Table::AcceptTcpPlayers(int playerCount)
             response["data"]["id"] = player->GetId();
             response["data"]["Bank"] = player->GetBank();
             SendMsg(response.dump());
-            AddPlayer(player);
+            AddPlayer(player, false);
         }
         else
         {

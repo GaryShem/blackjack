@@ -13,10 +13,29 @@ int main(int argc, char* argv[])
 {
     WSAObject wsa;
 
+    std::cout << "Program arguments:" << std::endl;
+    for (int i = 0; i < argc; i++)
+    {
+        std::cout << argv[i] << std::endl;
+    }
+
     TcpPlayerClient client;
     client.AskForName();
-//    client._name = "net";
-    client.Connect();
+    std::string ip = "127.0.0.1";
+    int port = 8005;
+    std::string portString;
+    if (argc >= 2)
+    {
+        ip = argv[1];
+    }
+
+    if (argc >= 3)
+    {
+        portString = argv[2];
+        port = std::stoi(portString);
+    }
+
+    client.Connect(ip, port);
 
     bool process = true;
     while (process)
