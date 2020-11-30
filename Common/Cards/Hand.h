@@ -20,6 +20,7 @@ public:
     std::string ToString() const;
     Card& DrawCard();
 //    Bet HandBet;
+    nlohmann::json Serialize();
 private:
     std::vector<Card> _cards;
 };

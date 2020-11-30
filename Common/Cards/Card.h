@@ -2,6 +2,7 @@
 #define BLACKJACK_CARD_H
 
 #include <string>
+#include "json.hpp"
 
 enum Ranks
 {
@@ -36,7 +37,13 @@ public:
     Suits Suit() const;
 
     std::string ToString() const;
+    std::string SerializeRank() const;
+    std::string SerializeSuit() const;
+    static Ranks DeserializeRank(std::string);
+    static Suits DeserializeSuit(std::string);
+    static Card Deserialize(std::string);
 
+    nlohmann::json Serialize();
 private:
     int GetHiddenSoftValue() const;
 
@@ -44,6 +51,7 @@ private:
     Ranks _rank;
     Suits _suit;
 };
+
 
 
 #endif //BLACKJACK_CARD_H

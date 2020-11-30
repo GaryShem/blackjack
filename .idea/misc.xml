@@ -3,9 +3,14 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/Client" />
       <file path="$PROJECT_DIR$/Common" />
-      <file path="$PROJECT_DIR$/Table" />
+      <file path="$PROJECT_DIR$/Server" />
+      <file path="$PROJECT_DIR$/nlohmann_json" />
     </sourceRoots>
+    <libraryRoots>
+      <file path="$PROJECT_DIR$/boost" />
+    </libraryRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/UML" />
     </excludeRoots>

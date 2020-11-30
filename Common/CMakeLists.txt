@@ -1,4 +1,4 @@
 project(common)
 
 add_subdirectory(Cards)
-add_subdirectory(Basics)
+add_subdirectory(CommonUtils)

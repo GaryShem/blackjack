@@ -1,4 +1,5 @@
 #include "Hand.h"
+#include "json.hpp"
 
 const std::vector<Card>& Hand::Cards() const
 {
@@ -82,4 +83,14 @@ Card& Hand::DrawCard()
     Card& card = _cards.back();
     _cards.pop_back();
     return card;
+}
+
+nlohmann::json Hand::Serialize()
+{
+    nlohmann::json j;
+    for (auto card : _cards)
+    {
+        j.push_back(card.Serialize());
+    }
+    return j;
 }
