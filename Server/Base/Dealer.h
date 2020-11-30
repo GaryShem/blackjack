@@ -9,22 +9,22 @@ class Dealer : public IPlayer, public ICardDealer
 public:
     explicit Dealer(CardShoe &shoe, int minimumBet, int maximumBet);
     virtual ~Dealer();
-    virtual void AddPlayer(IPlayer* player);
-    virtual void RemovePlayer(IPlayer* player);
+    virtual void AddPlayer(std::shared_ptr<IPlayer> player);
+    virtual void RemovePlayer(std::shared_ptr<IPlayer> player);
     virtual void PlayRound();
     void Play(ICardDealer* dealer) override;
     virtual const CardShoe &GetCardShoe();
-    void DealFaceupCard(IPlayer* player) override;
+    void DealFaceupCard(std::shared_ptr<IPlayer> player) override;
 
     PlayerDecision GetDecision() override;
     int RequestStartingBet(int minBet, int maxBet) override;
     bool RequestInsuranceBet() override;
     void PayInsurance(bool dealerHasNatural) override;
     void PayMainBet(bool dealerNatural, int dealerSum) override;
-    void PlayerList(std::vector<IPlayer*> players) override;
+    void PlayerList(std::vector<std::shared_ptr<IPlayer>> players) override;
 
 //    void PlayerList() override; TODO
-    void PlayerUpdated(IPlayer* player) override;
+    void PlayerUpdated(std::shared_ptr<IPlayer> player) override;
 
     void AcceptStartingBets(int minBet, int maxBet);
     void AcceptInsuranceBets();
@@ -36,11 +36,11 @@ public:
     int _minimumBet;
     int _maximumBet;
 protected:
-    void DealFacedownCard(IPlayer* player) override;
+    void DealFacedownCard(std::shared_ptr<IPlayer> player) override;
     void RevealHand();
     int GetHiddenHandSum();
     CardShoe &_shoe;
-    std::vector<IPlayer*> _players;
+    std::vector<std::shared_ptr<IPlayer>> _players;
 
 private:
     void DealStartingCards();

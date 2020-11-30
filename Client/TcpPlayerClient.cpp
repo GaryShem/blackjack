@@ -44,7 +44,7 @@ void TcpPlayerClient::CardsShuffled()
 
 PlayerDecision TcpPlayerClient::GetDecision()
 {
-    PrintGameState();
+//    PrintGameState();
     while (true)
     {
         std::cout << "What is your decision? (hit/stand/dd): ";
@@ -253,13 +253,16 @@ bool TcpPlayerClient::Process()
     }
     else if (j["command"] == "PlayerChanged")
     {
-        PlayerUpdated(Deserialize(j.dump()));
         nlohmann::json response;
         response["command"] = "OK";
         SendMsg(response.dump());
+        PlayerUpdated(Deserialize(j.dump()));
     }
     else if (j["command"] == "PlayerList")
     {
+        nlohmann::json response;
+        response["command"] = "OK";
+        SendMsg(response.dump());
         std::vector<std::shared_ptr<PlayerProxy>> playerList;
         for (auto it : j["data"]["Players"])
         {
@@ -271,9 +274,6 @@ bool TcpPlayerClient::Process()
             playerList.push_back(proxy);
         }
         PlayerList(playerList);
-        nlohmann::json response;
-        response["command"] = "OK";
-        SendMsg(response.dump());
     }
     else
     {

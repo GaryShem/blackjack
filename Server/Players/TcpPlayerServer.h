@@ -19,16 +19,16 @@ public:
 
     explicit TcpPlayerServer(SOCKET socket);
 
-    void PlayerUpdated(IPlayer* player) override;
+    void PlayerUpdated(std::shared_ptr<IPlayer> player) override;
     void CardsShuffled() override;
     PlayerDecision GetDecision() override;
     int RequestStartingBet(int minBet, int maxBet) override;
     bool RequestInsuranceBet() override;
-    void PlayerList(std::vector<IPlayer*> players) override;
+    void PlayerList(std::vector<std::shared_ptr<IPlayer>> players) override;
 
     ~TcpPlayerServer();
 private:
-    nlohmann::json Serialize(IPlayer* player);
+    nlohmann::json Serialize(std::shared_ptr<IPlayer> player);
 
     char* _buf = new char[buffer_size];
 };

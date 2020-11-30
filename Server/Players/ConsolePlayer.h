@@ -9,16 +9,16 @@ public:
     int RequestStartingBet(int minBet, int maxBet) override;
     bool RequestInsuranceBet() override;
     PlayerDecision GetDecision() override;
-    void PlayerUpdated(IPlayer* player) override;
+    void PlayerUpdated(std::shared_ptr<IPlayer> player) override;
     void CardsShuffled() override;
-    void PlayerList(std::vector<IPlayer*> players) override;
+    void PlayerList(std::vector<std::shared_ptr<IPlayer>> players) override;
 
-    void SubscribeDealer(IUpdatable* player) override;
+    void SubscribeDealer(std::shared_ptr<IUpdatable> player) override;
 private:
     void PrintGameState();
     std::string GetInput();
-    IPlayer* _dealer;
-    std::vector<IPlayer*> _players;
+    std::shared_ptr<IPlayer> _dealer;
+    std::vector<std::shared_ptr<IPlayer>> _players;
 };
 
 

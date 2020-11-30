@@ -9,10 +9,10 @@
 Table::Table(int minBet, int maxBet)
 {
     _minimumBet = minBet;
-    _dealer = new Dealer(_shoe, minBet, maxBet);
+    _dealer = std::make_shared<Dealer>(_shoe, minBet, maxBet);
 }
 
-void Table::AddPlayer(IPlayer* player, bool assignId)
+void Table::AddPlayer(std::shared_ptr<IPlayer> player, bool assignId)
 {
     if (assignId)
     {
@@ -22,8 +22,9 @@ void Table::AddPlayer(IPlayer* player, bool assignId)
     _players.push_back(player);
 }
 
-void Table::RemovePlayer(IPlayer* player)
+void Table::RemovePlayer(std::shared_ptr<IPlayer> player)
 {
+
     _dealer->RemovePlayer(player);
     _players.erase(std::find(_players.begin(), _players.end(), player));
 }
@@ -35,22 +36,8 @@ void Table::PlayGame(int roundLimit)
     {
         KickBeggars();
         _dealer->PlayRound();
-        _dealer->ClearHand();
-        for (auto player : _players)
-        {
-            player->ClearHand();
-        }
         KickBeggars();
     }
-}
-
-Table::~Table()
-{
-    for (int i = _players.size()-1; i >= 0; i--)
-    {
-        RemovePlayer(_players.at(i));
-    }
-    delete(_dealer);
 }
 
 void Table::KickBeggars()
@@ -101,7 +88,7 @@ void Table::AcceptTcpPlayers(int playerCount, u_short port)
         nlohmann::json j = nlohmann::json::parse(authMessage);
         if (j["command"] == "Authorize" && !j["data"]["name"].empty())
         {
-            IPlayer* player = new TcpPlayerServer(_socket);
+            std::shared_ptr<IPlayer> player = std::make_shared<TcpPlayerServer>(_socket);//new TcpPlayerServer(_socket);
             player->SetName(j["data"]["name"]);
             player->SetId(GenerateId());
 

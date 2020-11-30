@@ -1,4 +1,6 @@
 project(server_base)
+set(CMAKE_CXX_STANDARD 14)
+
 
 add_library(server_base Dealer.cpp Dealer.h ICardDealer.h IPlayer.cpp IPlayer.h)
 

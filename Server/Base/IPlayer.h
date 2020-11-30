@@ -7,19 +7,20 @@
 #include "Hand.h"
 #include "PlayerDecision.h"
 
+//class Dealer;
 
 class IUpdatable
 {
 public:
-    virtual void SubscribeDealer(IUpdatable* dealer) = 0;
+    virtual void SubscribeDealer(std::shared_ptr<IUpdatable> dealer) = 0;
     virtual void UnsubscribeDealer() = 0;
-    virtual void PlayerUpdated(IPlayer *player) = 0;
+    virtual void PlayerUpdated(std::shared_ptr<IPlayer> player) = 0;
     virtual void CardsShuffled() = 0;
-    virtual void NotifyDealer(IPlayer *player) = 0;
-    virtual void PlayerList(std::vector<IPlayer*> players) = 0;
+    virtual void NotifyDealer(std::shared_ptr<IPlayer> player) = 0;
+    virtual void PlayerList(std::vector<std::shared_ptr<IPlayer>> players) = 0;
 };
 
-class IPlayer : public IUpdatable
+class IPlayer : public IUpdatable, public std::enable_shared_from_this<IPlayer>
 {
 public:
     void AcceptCard(Card& card);
@@ -61,11 +62,11 @@ public:
 
     std::string ToString();
 
-    void SubscribeDealer(IUpdatable* player) override;
+    void SubscribeDealer(std::shared_ptr<IUpdatable> player) override;
     void UnsubscribeDealer() override;
-    void NotifyDealer(IPlayer *player) override;
+    void NotifyDealer(std::shared_ptr<IPlayer> player) override;
 protected:
-    IUpdatable* _subscriber = nullptr;
+    std::shared_ptr<IUpdatable> _subscriber = nullptr;
     Hand _hand;
     int _bet = 0;
     bool _insurance = false;

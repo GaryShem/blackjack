@@ -19,6 +19,7 @@ Hand& IPlayer::GetHand()
 void IPlayer::ClearHand()
 {
     _hand.Clear();
+    NotifyDealer(shared_from_this());
 }
 
 int IPlayer::GetBet()
@@ -30,14 +31,14 @@ void IPlayer::SetBet(int bet)
 {
     _bet = bet;
     _bank -= bet;
-    NotifyDealer(this);
+    NotifyDealer(shared_from_this());
 }
 
 void IPlayer::DoubleBet()
 {
     _bank -= _bet;
     _bet *= 2;
-    NotifyDealer(this);
+    NotifyDealer(shared_from_this());
 }
 
 bool IPlayer::GetInsurance()
@@ -52,7 +53,7 @@ void IPlayer::SetInsurance(bool insurance)
     {
         _bank -= _bet / 2;
     }
-    NotifyDealer(this);
+    NotifyDealer(shared_from_this());
 }
 
 int IPlayer::GetBank()
@@ -63,7 +64,7 @@ int IPlayer::GetBank()
 void IPlayer::SetBank(int bank)
 {
     _bank = bank;
-    NotifyDealer(this);
+    NotifyDealer(shared_from_this());
 }
 
 void IPlayer::Play(ICardDealer* cardDealer)
@@ -81,7 +82,7 @@ void IPlayer::Play(ICardDealer* cardDealer)
         decision = GetDecision();
         if (decision == PlayerDecision::Hit)
         {
-            cardDealer->DealFaceupCard(this);
+            cardDealer->DealFaceupCard(shared_from_this());
         }
         else if (decision == PlayerDecision::Stand)
         {
@@ -92,7 +93,7 @@ void IPlayer::Play(ICardDealer* cardDealer)
             if (_hand.Cards().size() == 2 && _bank >= _bet)
             {
                 DoubleBet();
-                cardDealer->DealFaceupCard(this);
+                cardDealer->DealFaceupCard(shared_from_this());
                 return;
             }
             else
@@ -107,7 +108,7 @@ void IPlayer::Play(ICardDealer* cardDealer)
     }
 }
 
-void IPlayer::SubscribeDealer(IUpdatable* player)
+void IPlayer::SubscribeDealer(std::shared_ptr<IUpdatable> player)
 {
     _subscriber = player;
 }
@@ -117,11 +118,11 @@ void IPlayer::UnsubscribeDealer()
     _subscriber = nullptr;
 }
 
-void IPlayer::NotifyDealer(IPlayer* player)
+void IPlayer::NotifyDealer(std::shared_ptr<IPlayer> player)
 {
     if (_subscriber != nullptr)
     {
-        _subscriber->PlayerUpdated(this);
+        _subscriber->PlayerUpdated(shared_from_this());
     }
 }
 
@@ -133,7 +134,7 @@ const std::string& IPlayer::GetName() const
 void IPlayer::SetName(const std::string& name)
 {
     _name = name;
-    NotifyDealer(this);
+    NotifyDealer(shared_from_this());
 }
 
 const std::string& IPlayer::GetId() const
@@ -144,7 +145,7 @@ const std::string& IPlayer::GetId() const
 void IPlayer::SetId(const std::string& id)
 {
     _id = id;
-    NotifyDealer(this);
+    NotifyDealer(shared_from_this());
 }
 
 bool IPlayer::HasNatural()

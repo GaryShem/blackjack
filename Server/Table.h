@@ -9,18 +9,17 @@ class Table : TcpUtil
 {
 public:
     explicit Table(int minBet, int maxBet);
-    ~Table();
 
     void AcceptTcpPlayers(int playerCount, u_short port = 8888);
-    void AddPlayer(IPlayer* player, bool assignId = true);
-    void RemovePlayer(IPlayer* player);
+    void AddPlayer(std::shared_ptr<IPlayer> player, bool assignId = true);
+    void RemovePlayer(std::shared_ptr<IPlayer> player);
 
     void PlayGame(int roundLimit);
     std::string GenerateId();
 private:
     CardShoe _shoe;
-    std::vector<IPlayer*> _players;
-    Dealer* _dealer;
+    std::vector<std::shared_ptr<IPlayer>> _players;
+    std::shared_ptr<Dealer> _dealer;
     int _minimumBet;
     int _nextId = 0;
 

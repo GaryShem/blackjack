@@ -126,7 +126,7 @@ PlayerDecision ConsolePlayer::GetDecision()
     }
 }
 
-void ConsolePlayer::PlayerUpdated(IPlayer* player)
+void ConsolePlayer::PlayerUpdated(std::shared_ptr<IPlayer> player)
 {
     if (player->IsDealer())
     {
@@ -147,13 +147,13 @@ void ConsolePlayer::CardsShuffled()
 
 }
 
-void ConsolePlayer::SubscribeDealer(IUpdatable* player)
+void ConsolePlayer::SubscribeDealer(std::shared_ptr<IUpdatable> player)
 {
     IPlayer::SubscribeDealer(player);
-    _dealer = dynamic_cast<Dealer*>(player);
+    _dealer = std::dynamic_pointer_cast<Dealer>(player);
 }
 
-void ConsolePlayer::PlayerList(std::vector<IPlayer*> players)
+void ConsolePlayer::PlayerList(std::vector<std::shared_ptr<IPlayer>> players)
 {
     for (int i = 0; i < players.size(); i++)
     {

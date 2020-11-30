@@ -9,7 +9,7 @@ TcpPlayerServer::TcpPlayerServer(SOCKET socket)
     _socket = socket;
 }
 
-void TcpPlayerServer::PlayerUpdated(IPlayer* player)
+void TcpPlayerServer::PlayerUpdated(std::shared_ptr<IPlayer> player)
 {
     nlohmann::json j;
     j["command"] = "PlayerChanged";
@@ -97,7 +97,7 @@ bool TcpPlayerServer::RequestInsuranceBet()
     return false;
 }
 
-nlohmann::json TcpPlayerServer::Serialize(IPlayer* player)
+nlohmann::json TcpPlayerServer::Serialize(std::shared_ptr<IPlayer> player)
 {
     nlohmann::json j;
     j["name"] = player->GetName();
@@ -117,7 +117,7 @@ TcpPlayerServer::~TcpPlayerServer()
     closesocket(_socket);
 }
 
-void TcpPlayerServer::PlayerList(std::vector<IPlayer*> players)
+void TcpPlayerServer::PlayerList(std::vector<std::shared_ptr<IPlayer>> players)
 {
     nlohmann::json j;
     j["command"] = "PlayerList";
