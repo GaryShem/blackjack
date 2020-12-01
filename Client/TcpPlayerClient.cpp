@@ -16,111 +16,7 @@
 #include "json.hpp"
 #include "PlayerProxy.h"
 
-void TcpPlayerClient::PlayerUpdated(std::shared_ptr<PlayerProxy> player)
-{
-    if (player->isDealer)
-    {
-        _dealerProxy = player;
-    }
-    else
-    {
-        for (int i = 0; i < _playerProxies.size(); i++)
-        {
-            if (_playerProxies.at(i)->id == player->id)
-            {
-                _playerProxies[i] = player;
-                return;
-            }
-        }
-        _playerProxies.push_back(player);
-    }
-    PrintGameState();
-}
 
-void TcpPlayerClient::CardsShuffled()
-{
-
-}
-
-PlayerDecision TcpPlayerClient::GetDecision()
-{
-//    PrintGameState();
-    while (true)
-    {
-        std::cout << "What is your decision? (hit/stand/dd): ";
-        std::string input;
-        std::getline(std::cin, input);
-        if (input == "hit")
-        {
-            return PlayerDecision::Hit;
-        }
-        else if (input == "stand")
-        {
-            return PlayerDecision::Stand;
-        }
-        else if (input == "double" || input == "dd")
-        {
-            if (OwnProxy()->hand.Cards().size() > 2)
-            {
-                std::cout << "doubling down is only possible with the initial 2 cards" << std::endl;
-            }
-            else
-            {
-                return PlayerDecision::Double;
-            }
-        }
-        else
-        {
-            std::cout << "incorrect input, please choose available action from the list" << std::endl;
-        }
-    }
-    return Stand;
-}
-
-int TcpPlayerClient::RequestStartingBet(int minBet, int maxBet)
-{
-    int bet = -1;
-
-    auto ownProxy = OwnProxy();
-    int bank = ownProxy->bank;
-
-    if (ownProxy->bank < maxBet)
-    {
-        maxBet = bank;
-    }
-
-    bool inputCorrect = false;
-    do
-    {
-        try
-        {
-            std::cout << "Your bank account: " << bank << std::endl;
-            std::cout << "Please enter your starting bet, minimum " << minBet << ", maximum " << maxBet << ": ";
-            std::string input;
-            std::getline(std::cin, input);
-            bet = std::stoi(input);
-            if (bet >= minBet && bet <= maxBet)
-            {
-                inputCorrect = true;
-            }
-            else
-            {
-                std::cout << "Invalid bet value, try again" << std::endl;
-            }
-        }
-        catch (std::exception& ex)
-        {
-            std::cout << "Incorrect input, try again and input an integer" << std::endl;
-            inputCorrect = false;
-        }
-    } while (!inputCorrect);
-    return bet;
-}
-
-bool TcpPlayerClient::RequestInsuranceBet()
-{
-    return false;
-}
 
 void TcpPlayerClient::Connect(std::string ip, u_short port)
 {
@@ -136,7 +32,7 @@ void TcpPlayerClient::Connect(std::string ip, u_short port)
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
 
-    if (connect(_socket, (sockaddr*) &addr, sizeof(addr)) == SOCKET_ERROR)
+    if (connect(_socket, (sockaddr * ) & addr, sizeof(addr)) == SOCKET_ERROR)
     {
         std::cout << "could not connect to target host" << std::endl;
         exit(123);
@@ -157,15 +53,9 @@ void TcpPlayerClient::Connect(std::string ip, u_short port)
     }
     else
     {
-        std::cout << "server declined connection" << std::endl;
+        std::cerr << "server declined connection" << std::endl;
         exit(123);
     }
-}
-
-void TcpPlayerClient::AskForName()
-{
-    std::cout << "enter your name" << std::endl;
-    std::getline(std::cin, _name);
 }
 
 std::shared_ptr<PlayerProxy> TcpPlayerClient::Deserialize(std::string serializedPlayer)
@@ -297,28 +187,52 @@ std::shared_ptr<PlayerProxy> TcpPlayerClient::OwnProxy()
     return nullptr;
 }
 
-void TcpPlayerClient::PrintGameState()
+void TcpPlayerClient::PlayerUpdated(std::shared_ptr<PlayerProxy> player)
 {
-    std::cout << std::endl;
-    if (_dealerProxy != nullptr)
+    if (player->isDealer)
     {
-        std::cout << "Dealer: " << _dealerProxy->hand.ToString() << std::endl;
+        _dealerProxy = player;
     }
-    for (auto proxy : _playerProxies)
+    else
     {
-        std::cout << "Player (" << proxy->name << ", " << proxy->id << ")" << proxy->hand.ToString() << std::endl;
-        std::cout << "Bet: " << proxy->bet << " Insurance: " << (proxy->insurance ? "true" : "false") << " Bank: "
-                  << proxy->bank << std::endl;
-    }
-    std::shared_ptr<PlayerProxy> ownProxy = OwnProxy();
-    if (ownProxy != nullptr)
-    {
-        std::cout << "You are Player (" << OwnProxy()->name << ", " << OwnProxy()->id << ")" << std::endl;
+        for (int i = 0; i < _playerProxies.size(); i++)
+        {
+            if (_playerProxies.at(i)->id == player->id)
+            {
+                _playerProxies[i] = player;
+                return;
+            }
+        }
+        _playerProxies.push_back(player);
     }
 }
 
 void TcpPlayerClient::PlayerList(std::vector<std::shared_ptr<PlayerProxy>> players)
 {
-    _playerProxies = std::move(players);
-    PrintGameState();
+    _playerProxies = players;
+}
+
+void TcpPlayerClient::CardsShuffled()
+{
+
+}
+
+bool TcpPlayerClient::RequestInsuranceBet()
+{
+    return false;
+}
+
+int TcpPlayerClient::RequestStartingBet(int minBet, int maxBet)
+{
+    return minBet;
+}
+
+PlayerDecision TcpPlayerClient::GetDecision()
+{
+    return Stand;
+}
+
+void TcpPlayerClient::AskForName()
+{
+    _name = "base_tcp_bot";
 }

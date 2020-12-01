@@ -17,24 +17,23 @@ class TcpPlayerClient : public TcpUtil
 public:
     const int buffer_size = 1024*1024;
 
-    void PlayerUpdated(std::shared_ptr<PlayerProxy> player);
-    void PlayerList(std::vector<std::shared_ptr<PlayerProxy>> players);
-    void CardsShuffled();
-    PlayerDecision GetDecision();
-    int RequestStartingBet(int minBet, int maxBet);
-    bool RequestInsuranceBet();
+    virtual void PlayerUpdated(std::shared_ptr<PlayerProxy> player);
+    virtual void PlayerList(std::vector<std::shared_ptr<PlayerProxy>> players);
+    virtual void CardsShuffled();
+    virtual PlayerDecision GetDecision();
+    virtual int RequestStartingBet(int minBet, int maxBet);
+    virtual bool RequestInsuranceBet();
     void Connect(std::string ip = "127.0.0.1", u_short port = 8005);
-    void AskForName();
+    virtual void AskForName();
     bool Process();
     std::shared_ptr<PlayerProxy> OwnProxy();
     std::shared_ptr<PlayerProxy> Deserialize(std::string serializedPlayer);
 
     std::string _name;
     std::string _id;
-private:
+protected:
     std::shared_ptr<PlayerProxy> _dealerProxy = nullptr;
     std::vector<std::shared_ptr<PlayerProxy>> _playerProxies;
-    void PrintGameState();
 };
 
 

@@ -4,7 +4,10 @@
 
 void TcpUtil::SendMsg(std::string message)
 {
-    std::cout << "Sending: " << message << std::endl;
+    if (_logging)
+    {
+        std::cout << "Sending: " << message << std::endl;
+    }
     std::string modified_message = message + "\r\n\r\n";
     int bytes_sent = send(_socket, modified_message.c_str(), strlen(modified_message.c_str()), 0);
     if (bytes_sent == SOCKET_ERROR)
@@ -34,7 +37,10 @@ std::string TcpUtil::ReceiveMsg()
         size_t length = message.find("\r\n\r\n");
         processed = length + 4;
         std::string submessage = message.substr(0, length);
-        if (_logging) std::cout << "Received: " << submessage << std::endl;
+        if (_logging)
+        {
+            std::cout << "Received: " << submessage << std::endl;
+        }
         _messages.push(submessage);
 
         message = message.substr(processed);

@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
     Table table(10, 100);
     table.AcceptTcpPlayers(playerLimit, port);
-    table.PlayGame(5);
+    table.PlayGame(1000);
 
     return 0;
 }

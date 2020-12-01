@@ -158,7 +158,7 @@ void Dealer::Shuffle()
     _shoe.Shuffle();
     for (auto player : _players)
     {
-        CardsShuffled();
+        player->CardsShuffled();
     }
 }
 
@@ -190,13 +190,10 @@ void Dealer::PlayRound()
     PayMainBet(HasNatural(), _hand.GetSum());
 
     ClearHand();
+    PlayerUpdated(shared_from_this());
     for (auto p : _players)
     {
         p->ClearHand();
-        for (auto p2 : _players)
-        {
-
-        }
     }
 
     if (_shoe.GetRemainingCardCount() < _shoe.ShuffleThreshold)

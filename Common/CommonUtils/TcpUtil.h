@@ -15,6 +15,7 @@ public:
 
     void SendMsg(std::string message);
     std::string ReceiveMsg();
+    bool _logging = true;
 
     virtual ~TcpUtil();
 protected:
@@ -23,7 +24,6 @@ protected:
 
 private:
     char* _buf = new char[buffer_size];
-    bool _logging = true;
 };
 
 

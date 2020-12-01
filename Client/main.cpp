@@ -3,6 +3,8 @@
 #include <Winsock2.h>
 #include <Ws2tcpip.h>
 #include "TcpPlayerClient.h"
+#include "TcpConsoleClient.h"
+#include "TcpBotClient.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #include "WSAObject.h"
@@ -19,7 +21,8 @@ int main(int argc, char* argv[])
         std::cout << argv[i] << std::endl;
     }
 
-    TcpPlayerClient client;
+    TcpConsoleClient client;
+    client._logging = false;
     client.AskForName();
     std::string ip = "127.0.0.1";
     int port = 8005;
