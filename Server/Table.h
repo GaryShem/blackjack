@@ -5,7 +5,7 @@
 #include "Dealer.h"
 #include "TcpUtil.h"
 
-class Table : TcpUtil
+class Table : public TcpUtil
 {
 public:
     explicit Table(int minBet, int maxBet);

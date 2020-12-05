@@ -94,3 +94,23 @@ nlohmann::json Hand::Serialize()
     }
     return j;
 }
+
+bool Hand::IsSoftHand()
+{
+    int aceCount = 0;
+    int result = 0;
+    for (auto &card : _cards)
+    {
+        result += card.GetSoftValue();
+        if (card.Rank() == Ranks::A)
+        {
+            aceCount++;
+        }
+    }
+    while (result > 21 && aceCount > 0)
+    {
+        result -= 10;
+        aceCount--;
+    }
+    return aceCount > 0;
+}

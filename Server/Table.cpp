@@ -1,5 +1,7 @@
 #include "Table.h"
+
 #define WIN32_LEAN_AND_MEAN
+
 #include <Winsock2.h>
 #include <Ws2tcpip.h>
 #include <Utils.h>
@@ -10,7 +12,6 @@ Table::Table(int minBet, int maxBet)
 {
     _minimumBet = minBet;
     _dealer = std::make_shared<Dealer>(_shoe, minBet, maxBet);
-//    _logging = false;
 }
 
 void Table::AddPlayer(std::shared_ptr<IPlayer> player, bool assignId)
@@ -35,7 +36,10 @@ void Table::PlayGame(int roundLimit)
     int currentRound = 0;
     while (_players.size() > 0 && currentRound++ < roundLimit)
     {
-        std::cout << "Round " << currentRound << std::endl;
+        if (currentRound % 100 == 0)
+        {
+            std::cout << "Round " << currentRound << std::endl;
+        }
         KickBeggars();
         _dealer->PlayRound();
         KickBeggars();
@@ -44,7 +48,7 @@ void Table::PlayGame(int roundLimit)
 
 void Table::KickBeggars()
 {
-    for (int i = _players.size()-1; i >= 0; i--)
+    for (int i = _players.size() - 1; i >= 0; i--)
     {
         if (_players.at(i)->GetBank() < _minimumBet)
         {
@@ -72,7 +76,7 @@ void Table::AcceptTcpPlayers(int playerCount, u_short port)
     server_addr.sin_port = htons(port);
     server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
 
-    if (bind(listener, (sockaddr*)&server_addr, sizeof(server_addr)) < 0)
+    if (bind(listener, (sockaddr*) &server_addr, sizeof(server_addr)) < 0)
     {
         std::cerr << "can't bind listener socket" << std::endl;
         exit(154);
@@ -91,7 +95,8 @@ void Table::AcceptTcpPlayers(int playerCount, u_short port)
         nlohmann::json j = nlohmann::json::parse(authMessage);
         if (j["command"] == "Authorize" && !j["data"]["name"].empty())
         {
-            std::shared_ptr<TcpPlayerServer> player = std::make_shared<TcpPlayerServer>(_socket);//new TcpPlayerServer(_socket);
+            std::shared_ptr<TcpPlayerServer> player = std::make_shared<TcpPlayerServer>(
+                    _socket);//new TcpPlayerServer(_socket);
             player->_logging = _logging;
             player->SetName(j["data"]["name"]);
             player->SetId(GenerateId());

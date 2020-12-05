@@ -164,6 +164,10 @@ void Dealer::Shuffle()
 
 void Dealer::PlayRound()
 {
+    for (auto p_read : _players)
+    {
+        p_read->PlayerList(_players);
+    }
     AcceptStartingBets(_minimumBet, _maximumBet);
     DealStartingCards();
     bool hasNatural = CheckNatural();

@@ -32,11 +32,16 @@ void TcpPlayerClient::Connect(std::string ip, u_short port)
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
 
-    if (connect(_socket, (sockaddr * ) & addr, sizeof(addr)) == SOCKET_ERROR)
+    while (true)
     {
-        std::cout << "could not connect to target host" << std::endl;
-        exit(123);
+        if (connect(_socket, (sockaddr * ) & addr, sizeof(addr)) != SOCKET_ERROR)
+            break;
     }
+//    if (connect(_socket, (sockaddr * ) & addr, sizeof(addr)) == SOCKET_ERROR)
+//    {
+//        std::cout << "could not connect to target host" << std::endl;
+//        exit(123);
+//    }
 
     nlohmann::json j;
     j["command"] = "Authorize";

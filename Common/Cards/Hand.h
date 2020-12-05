@@ -19,6 +19,7 @@ public:
     void Clear();
     std::string ToString() const;
     Card& DrawCard();
+    bool IsSoftHand();
 //    Bet HandBet;
     nlohmann::json Serialize();
 private:
