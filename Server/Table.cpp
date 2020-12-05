@@ -70,7 +70,7 @@ void Table::AcceptTcpPlayers(int playerCount, u_short port)
         _socket = std::make_shared<tcp::socket>(io_context);
         acceptor.accept(*_socket);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+//        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
         std::string authMessage = ReceiveMsg();
         nlohmann::json j = nlohmann::json::parse(authMessage);
