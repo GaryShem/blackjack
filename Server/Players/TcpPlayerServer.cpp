@@ -2,9 +2,11 @@
 #include <iostream>
 #include "json.hpp"
 #include "TcpPlayerServer.h"
+#include <boost/asio.hpp>
 
+using boost::asio::ip::tcp;
 
-TcpPlayerServer::TcpPlayerServer(SOCKET socket)
+TcpPlayerServer::TcpPlayerServer(std::shared_ptr<tcp::socket> socket)
 {
     _socket = socket;
 }
@@ -109,12 +111,6 @@ nlohmann::json TcpPlayerServer::Serialize(std::shared_ptr<IPlayer> player)
     j["hand"] = player->GetHand().Serialize();
 
     return j;
-}
-
-TcpPlayerServer::~TcpPlayerServer()
-{
-    delete[] _buf;
-    closesocket(_socket);
 }
 
 void TcpPlayerServer::PlayerList(std::vector<std::shared_ptr<IPlayer>> players)
