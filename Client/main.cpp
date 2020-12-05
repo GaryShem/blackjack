@@ -15,26 +15,38 @@ int main(int argc, char* argv[])
 {
     WSAObject wsa;
 
-    std::cout << "Program arguments:" << std::endl;
-    for (int i = 0; i < argc; i++)
-    {
-        std::cout << argv[i] << std::endl;
-    }
+//    std::cout << "Program arguments:" << std::endl;
+//    for (int i = 0; i < argc; i++)
+//    {
+//        std::cout << argv[i] << std::endl;
+//    }
 
-    TcpConsoleClient client;
-    client._logging = false;
+    TcpBotClient client;
+    client._logging = true;
     client.AskForName();
     std::string ip = "127.0.0.1";
     int port = 8005;
     std::string portString;
     if (argc >= 2)
     {
-        ip = argv[1];
+        std::string betUnitStrung = argv[1];
+        int betUnit = std::stoi(betUnitStrung);
+        client.betUnit = betUnit;
+    }
+    else
+    {
+        std::cout << "pass in bet unit as argv[1]" << std::endl;
+        return 1;
     }
 
     if (argc >= 3)
     {
-        portString = argv[2];
+        ip = argv[2];
+    }
+
+    if (argc >= 4)
+    {
+        portString = argv[3];
         port = std::stoi(portString);
     }
 

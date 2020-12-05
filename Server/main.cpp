@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     }
 
     Table table(10, 100);
+//    table._logging = false;
     table.AcceptTcpPlayers(playerLimit, port);
     table.PlayGame(1000);
 
