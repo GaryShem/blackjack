@@ -2,11 +2,10 @@
 #define BLACKJACK_TCPUTIL_H
 
 #include <string>
-#include <Winsock2.h>
-#include <Ws2tcpip.h>
 #include <queue>
+#include <boost/asio.hpp>
 
-#pragma comment(lib, "Ws2_32.lib")
+using boost::asio::ip::tcp;
 
 class TcpUtil
 {
@@ -16,14 +15,10 @@ public:
     void SendMsg(std::string message);
     std::string ReceiveMsg();
     bool _logging = true;
-
-    virtual ~TcpUtil();
 protected:
+    std::shared_ptr<boost::asio::io_context> _context;
     std::queue<std::string> _messages;
-    SOCKET _socket;
-
-private:
-    char* _buf = new char[buffer_size];
+    std::shared_ptr<tcp::socket> _socket;
 };
 
 

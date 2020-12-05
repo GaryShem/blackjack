@@ -1,12 +1,11 @@
 #include "Table.h"
 
-#define WIN32_LEAN_AND_MEAN
-
-#include <Winsock2.h>
-#include <Ws2tcpip.h>
 #include <Utils.h>
 #include <iostream>
 #include "Players/TcpPlayerServer.h"
+#include <boost/asio.hpp>
+
+using boost::asio::ip::tcp;
 
 Table::Table(int minBet, int maxBet)
 {
@@ -26,7 +25,6 @@ void Table::AddPlayer(std::shared_ptr<IPlayer> player, bool assignId)
 
 void Table::RemovePlayer(std::shared_ptr<IPlayer> player)
 {
-
     _dealer->RemovePlayer(player);
     _players.erase(std::find(_players.begin(), _players.end(), player));
 }
@@ -64,39 +62,21 @@ std::string Table::GenerateId()
 
 void Table::AcceptTcpPlayers(int playerCount, u_short port)
 {
-    SOCKET listener = socket(AF_INET, SOCK_STREAM, 0);
-    if (listener == INVALID_SOCKET)
-    {
-        std::cerr << "socket error" << std::endl;
-        exit(153);
-    }
-    sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
-
-    if (bind(listener, (sockaddr*) &server_addr, sizeof(server_addr)) < 0)
-    {
-        std::cerr << "can't bind listener socket" << std::endl;
-        exit(154);
-    }
-
-    listen(listener, SOMAXCONN);
+    boost::asio::io_context io_context;
+    tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), port));
 
     for (int i = 0; i < playerCount; i++)
     {
-        sockaddr_in client_addr;
-        int addrSize = sizeof(client_addr);
-        _socket = accept(listener, (sockaddr*) &client_addr, &addrSize);
-        std::cout << "client connected" << std::endl;
+        _socket = std::make_shared<tcp::socket>(io_context);
+        acceptor.accept(*_socket);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
         std::string authMessage = ReceiveMsg();
         nlohmann::json j = nlohmann::json::parse(authMessage);
         if (j["command"] == "Authorize" && !j["data"]["name"].empty())
         {
-            std::shared_ptr<TcpPlayerServer> player = std::make_shared<TcpPlayerServer>(
-                    _socket);//new TcpPlayerServer(_socket);
+            std::shared_ptr<TcpPlayerServer> player = std::make_shared<TcpPlayerServer>(_socket);
             player->_logging = _logging;
             player->SetName(j["data"]["name"]);
             player->SetId(GenerateId());
@@ -106,7 +86,7 @@ void Table::AcceptTcpPlayers(int playerCount, u_short port)
             response["data"]["name"] = player->GetName();
             response["data"]["id"] = player->GetId();
             response["data"]["Bank"] = player->GetBank();
-            SendMsg(response.dump());
+            player->SendMsg(response.dump());
             AddPlayer(player, false);
         }
         else
@@ -129,5 +109,4 @@ void Table::AcceptTcpPlayers(int playerCount, u_short port)
             SendMsg(message);
         }
     }
-    closesocket(listener);
 }

@@ -1,47 +1,22 @@
 #include "TcpPlayerClient.h"
 
-
-#define WIN32_LEAN_AND_MEAN
-
-#include <Winsock2.h>
-#include <Ws2tcpip.h>
 #include <iostream>
 #include <string>
 #include <utility>
 #include "Utils.h"
-
-#pragma comment(lib, "Ws2_32.lib")
-
-#include "WSAObject.h"
 #include "json.hpp"
 #include "PlayerProxy.h"
+#include <boost/asio.hpp>
 
-
+using boost::asio::ip::tcp;
 
 void TcpPlayerClient::Connect(std::string ip, u_short port)
 {
-    _socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (_socket == INVALID_SOCKET)
-    {
-        std::cout << "coult not create sender socket, try again later" << std::endl;
-        exit(123);
-    }
+    _context = std::make_shared<boost::asio::io_context>();
+    _socket = std::make_shared<tcp::socket>(*_context);
 
-    sockaddr_in addr;
-    inet_pton(AF_INET, ip.c_str(), &addr.sin_addr);
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-
-    while (true)
-    {
-        if (connect(_socket, (sockaddr * ) & addr, sizeof(addr)) != SOCKET_ERROR)
-            break;
-    }
-//    if (connect(_socket, (sockaddr * ) & addr, sizeof(addr)) == SOCKET_ERROR)
-//    {
-//        std::cout << "could not connect to target host" << std::endl;
-//        exit(123);
-//    }
+    tcp::resolver resolver(*_context);
+    boost::asio::connect(*_socket, resolver.resolve(ip, std::to_string(port)));
 
     nlohmann::json j;
     j["command"] = "Authorize";
