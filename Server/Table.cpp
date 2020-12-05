@@ -62,15 +62,14 @@ std::string Table::GenerateId()
 
 void Table::AcceptTcpPlayers(int playerCount, u_short port)
 {
-    boost::asio::io_context io_context;
-    tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), port));
+//    boost::asio::io_context io_context;
+    _context = std::make_shared<boost::asio::io_context>();
+    tcp::acceptor acceptor(*_context, tcp::endpoint(tcp::v4(), port));
 
     for (int i = 0; i < playerCount; i++)
     {
-        _socket = std::make_shared<tcp::socket>(io_context);
+        _socket = std::make_shared<tcp::socket>(*_context);
         acceptor.accept(*_socket);
-
-//        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
         std::string authMessage = ReceiveMsg();
         nlohmann::json j = nlohmann::json::parse(authMessage);

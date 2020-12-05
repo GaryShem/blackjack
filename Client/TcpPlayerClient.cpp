@@ -62,20 +62,7 @@ std::shared_ptr<PlayerProxy> TcpPlayerClient::Deserialize(std::string serialized
 
 bool TcpPlayerClient::Process()
 {
-    std::string message;
-    if (!_messages.empty())
-    {
-        message = _messages.front();
-        _messages.pop();
-    }
-    else
-    {
-        message = ReceiveMsg();
-    }
-    if (message.empty())
-    {
-        return false;
-    }
+    std::string message = ReceiveMsg();
     nlohmann::json j = nlohmann::json::parse(message);
     if (j["command"] == "RequestAction")
     {
