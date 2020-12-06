@@ -28,7 +28,38 @@ PlayerDecision TcpBotClient::GetDecision(int handIndex)
     bool doubleAllowed = hand.Cards().size() == 2;
     if (hand.IsSplittable())
     {
-        return Split;
+        Ranks rank = hand.Cards().front().Rank();
+        if (rank == Ranks::A)
+        {
+            return Split;
+        }
+        else if (rank == Ranks::_9)
+        {
+            if (dealerHandValue == 7 || dealerHandValue >= 10)
+            {
+                return Split;
+            }
+        }
+        else if (rank == Ranks::_8)
+        {
+            return Split;
+        }
+        else if (rank == Ranks::_7 && dealerHandValue <= 7)
+        {
+            return Split;
+        }
+        else if (rank == Ranks::_6 && dealerHandValue <= 6)
+        {
+            return Split;
+        }
+        else if (rank == Ranks::_4 && dealerHandValue >= 5 && dealerHandValue <= 6)
+        {
+            return Split;
+        }
+        else if ((rank == Ranks::_3 || rank == Ranks::_2) && dealerHandValue <= 7)
+        {
+            return Split;
+        }
     }
     if (hand.IsSoftHand())
     {
