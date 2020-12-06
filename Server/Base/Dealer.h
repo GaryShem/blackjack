@@ -14,9 +14,9 @@ public:
     virtual void PlayRound();
     void Play(ICardDealer* dealer) override;
     virtual const CardShoe &GetCardShoe();
-    void DealFaceupCard(std::shared_ptr<IPlayer> player) override;
+    void DealFaceupCard(std::shared_ptr<IPlayer> player, int handIndex) override;
 
-    PlayerDecision GetDecision() override;
+    PlayerDecision GetDecision(int handIndex) override;
     int RequestStartingBet(int minBet, int maxBet) override;
     bool RequestInsuranceBet() override;
     void PayInsurance(bool dealerHasNatural) override;
@@ -36,8 +36,8 @@ public:
     int _minimumBet;
     int _maximumBet;
 protected:
-    void DealFacedownCard(std::shared_ptr<IPlayer> player) override;
-    void RevealHand();
+    void DealFacedownCard(std::shared_ptr<IPlayer> player, int handIndex) override;
+    void RevealHand(int handIndex = 0);
     int GetHiddenHandSum();
     CardShoe &_shoe;
     std::vector<std::shared_ptr<IPlayer>> _players;

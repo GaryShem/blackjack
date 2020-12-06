@@ -18,26 +18,26 @@ Dealer::Dealer(CardShoe &shoe, int minimumBet, int maximumBet)
 
 int Dealer::GetHiddenHandSum()
 {
-    return _hand.GetHiddenSum();
+    return _hands.front().GetHiddenSum();
 }
 
-void Dealer::DealFaceupCard(std::shared_ptr<IPlayer> player)
+void Dealer::DealFaceupCard(std::shared_ptr<IPlayer> player, int handIndex)
 {
-    player->AcceptCard(_shoe.DrawCard());
+    player->AcceptCard(_shoe.DrawCard(), handIndex);
     PlayerUpdated(player);
 //    UpdateSubscribers();
 }
 
-void Dealer::DealFacedownCard(std::shared_ptr<IPlayer> player)
+void Dealer::DealFacedownCard(std::shared_ptr<IPlayer> player, int handIndex)
 {
-    player->AcceptCard(_shoe.DrawCard(true));
+    player->AcceptCard(_shoe.DrawCard(true), handIndex);
     PlayerUpdated(player);
 //    UpdateSubscribers();
 }
 
-PlayerDecision Dealer::GetDecision()
+PlayerDecision Dealer::GetDecision(int handIndex)
 {
-    if (_hand.GetSum() < 17)
+    if (_hands[handIndex].GetSum() < 17)
     {
         return PlayerDecision::Hit;
     }
@@ -96,22 +96,24 @@ void Dealer::PlayerUpdated(std::shared_ptr<IPlayer> player)
 void Dealer::Play(ICardDealer* dealer)
 {
     PlayerDecision decision;
-    do
+    for (int i = 0; i < _hands.size(); i++)
     {
-        decision = GetDecision();
-        switch (decision)
+        Hand& hand = _hands[i];
+        do
         {
-
-            case Hit:
-                DealFaceupCard(shared_from_this());
-                break;
-            case Stand:
-            case Double:
-            default:
-                break;
-        }
+            decision = GetDecision(i);
+            switch (decision)
+            {
+                case Hit:
+                    DealFaceupCard(shared_from_this(), i);
+                    break;
+                case Stand:
+                case Double:
+                default:
+                    break;
+            }
+        } while (!hand.IsBusted() && decision != PlayerDecision::Stand);
     }
-    while (!IsBusted() && decision != PlayerDecision::Stand);
 }
 
 void Dealer::AddPlayer(std::shared_ptr<IPlayer> player)
@@ -147,9 +149,9 @@ void Dealer::AcceptInsuranceBets()
     }
 }
 
-void Dealer::RevealHand()
+void Dealer::RevealHand(int handIndex)
 {
-    _hand.Reveal();
+    _hands[handIndex].Reveal();
     PlayerUpdated(shared_from_this());
 }
 
@@ -171,7 +173,8 @@ void Dealer::PlayRound()
     AcceptStartingBets(_minimumBet, _maximumBet);
     DealStartingCards();
     bool hasNatural = CheckNatural();
-    if (_hand.GetSum() == 11)
+    Hand& hand = _hands.front();
+    if (hand.GetSum() == 11)
     {
         AcceptInsuranceBets();
     }
@@ -191,7 +194,7 @@ void Dealer::PlayRound()
         RevealHand();
     }
 
-    PayMainBet(HasNatural(), _hand.GetSum());
+    PayMainBet(HasNatural(0), hand.GetSum());
 
     ClearHand();
     PlayerUpdated(shared_from_this());
@@ -210,16 +213,16 @@ void Dealer::DealStartingCards()
 {
     for (auto player : _players)
     {
-        DealFaceupCard(player);
-        DealFaceupCard(player);
+        DealFaceupCard(player, 0);
+        DealFaceupCard(player, 0);
     }
-    DealFaceupCard(shared_from_this());
-    DealFacedownCard(shared_from_this());
+    DealFaceupCard(shared_from_this(), 0);
+    DealFacedownCard(shared_from_this(), 0);
 }
 
 bool Dealer::CheckNatural()
 {
-    bool hasNatural = _hand.Cards().size() == 2 && Dealer::GetHiddenHandSum() == 21;
+    bool hasNatural = _hands.front().Cards().size() == 2 && Dealer::GetHiddenHandSum() == 21;
     return hasNatural;
 }
 

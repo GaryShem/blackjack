@@ -2,22 +2,30 @@
 
 void TcpConsoleClient::PrintGameState()
 {
-    std::cout << std::endl;
+    std::ostringstream ss;
+    ss << std::endl;
     if (_dealerProxy != nullptr)
     {
-        std::cout << "Dealer: " << _dealerProxy->hand.ToString() << std::endl;
+        ss << "Dealer: " << _dealerProxy->hands.front().ToString() << std::endl;
     }
     for (auto proxy : _playerProxies)
     {
-        std::cout << "Player (" << proxy->name << ", " << proxy->id << ")" << proxy->hand.ToString() << std::endl;
-        std::cout << "Bet: " << proxy->bet << " Insurance: " << (proxy->insurance ? "true" : "false") << " Bank: "
-                  << proxy->bank << std::endl;
+        ss << "Player (" << proxy->name << ", " << proxy->id
+        << " Bet: " << proxy->bet << " Insurance: " << (proxy->insurance ? "true" : "false")
+        << " Bank: " << proxy->bank << std::endl;
+        for (auto& hand : proxy->hands)
+        {
+            ss << "Hand " << hand.GetIndex() << ": " << hand.ToString() << std::endl;
+        }
+
     }
+    ss << std::endl;
     std::shared_ptr<PlayerProxy> ownProxy = OwnProxy();
     if (ownProxy != nullptr)
     {
-        std::cout << "You are Player (" << OwnProxy()->name << ", " << OwnProxy()->id << ")" << std::endl;
+        ss << "You are Player (" << OwnProxy()->name << ", " << OwnProxy()->id << ")" << std::endl;
     }
+    std::cout << ss.str();
 }
 
 void TcpConsoleClient::PlayerUpdated(std::shared_ptr<PlayerProxy> player)
@@ -37,11 +45,11 @@ void TcpConsoleClient::CardsShuffled()
 
 }
 
-PlayerDecision TcpConsoleClient::GetDecision()
+PlayerDecision TcpConsoleClient::GetDecision(int handIndex)
 {
     while (true)
     {
-        std::cout << "What is your decision? (hit/stand/dd): ";
+        std::cout << "What is your decision? (hit/stand/dd/split): ";
         std::string input;
         std::getline(std::cin, input);
         if (input == "hit")
@@ -54,7 +62,7 @@ PlayerDecision TcpConsoleClient::GetDecision()
         }
         else if (input == "double" || input == "dd")
         {
-            if (OwnProxy()->hand.Cards().size() > 2)
+            if (OwnProxy()->hands[handIndex].Cards().size() > 2)
             {
                 std::cout << "doubling down is only possible with the initial 2 cards" << std::endl;
             }
@@ -62,6 +70,10 @@ PlayerDecision TcpConsoleClient::GetDecision()
             {
                 return PlayerDecision::Double;
             }
+        }
+        else if (input == "split")
+        {
+
         }
         else
         {

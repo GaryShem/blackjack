@@ -5,7 +5,8 @@ enum PlayerDecision
 {
     Hit,
     Stand,
-    Double
+    Double,
+    Split
 };
 
 #endif //BLACKJACK_PLAYERDECISION_H

@@ -23,20 +23,20 @@ public:
 class IPlayer : public IUpdatable, public std::enable_shared_from_this<IPlayer>
 {
 public:
-    void AcceptCard(Card& card);
-    bool IsBusted();
+    void AcceptCard(Card& card, int handIndex);
+    bool IsBusted(int handIndex);
 
-    virtual PlayerDecision GetDecision() = 0;
-    bool HasNatural();
+    virtual PlayerDecision GetDecision(int handIndex) = 0;
+    bool HasNatural(int handIndex);
 
-    Hand& GetHand();
+    Hand& GetHand(int handIndex);
     void ClearHand();
 
     virtual void Play(ICardDealer* dealer);
 
     int GetBet();
     void SetBet(int bet);
-    void DoubleBet();
+    void DoubleBet(int handIndex);
 
     bool GetInsurance();
     void SetInsurance(bool insurance);
@@ -67,7 +67,7 @@ public:
     void NotifyDealer(std::shared_ptr<IPlayer> player) override;
 protected:
     std::shared_ptr<IUpdatable> _subscriber = nullptr;
-    Hand _hand;
+    std::vector<Hand> _hands;
     int _bet = 0;
     bool _insurance = false;
     int _bank = 1000;

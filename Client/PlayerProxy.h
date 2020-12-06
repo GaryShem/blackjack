@@ -12,7 +12,7 @@ public:
     int bank;
     int bet;
     bool insurance;
-    Hand hand;
+    std::vector<Hand> hands;
     bool isDealer;
 };
 

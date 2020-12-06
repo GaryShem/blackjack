@@ -15,7 +15,7 @@ public:
 
     void PlayerUpdated(std::shared_ptr<IPlayer> player) override;
     void CardsShuffled() override;
-    PlayerDecision GetDecision() override;
+    PlayerDecision GetDecision(int handIndex) override;
     int RequestStartingBet(int minBet, int maxBet) override;
     bool RequestInsuranceBet() override;
     void PlayerList(std::vector<std::shared_ptr<IPlayer>> players) override;

@@ -4,7 +4,7 @@
 void TcpBotClient::PlayerUpdated(std::shared_ptr<PlayerProxy> player)
 {
     TcpPlayerClient::PlayerUpdated(player);
-    if (player->isDealer && player->hand.GetSum() >= 17 && !_roundCardsCounted)
+    if (player->isDealer && player->hands.size() > 0 && player->hands[0].GetSum() >= 17 && !_roundCardsCounted)
     {
         AddCardsToCount();
     }
@@ -20,12 +20,17 @@ void TcpBotClient::CardsShuffled()
     ResetRunningCount();
 }
 
-PlayerDecision TcpBotClient::GetDecision()
+PlayerDecision TcpBotClient::GetDecision(int handIndex)
 {
-    int handValue = OwnProxy()->hand.GetSum();
-    int dealerHandValue = _dealerProxy->hand.GetSum();
-    bool doubleAllowed = OwnProxy()->hand.Cards().size() == 2;
-    if (OwnProxy()->hand.IsSoftHand())
+    Hand& hand = OwnProxy()->hands[handIndex];
+    int handValue = hand.GetSum();
+    int dealerHandValue = _dealerProxy->hands.front().GetSum();
+    bool doubleAllowed = hand.Cards().size() == 2;
+    if (hand.IsSplittable())
+    {
+        return Split;
+    }
+    if (hand.IsSoftHand())
     {
         if (handValue <= 14)
         {
@@ -198,15 +203,18 @@ TcpBotClient::TcpBotClient(std::string name)
 void TcpBotClient::AddCardsToCount()
 {
     _roundCardsCounted = true;
-    for (const auto& card : _dealerProxy->hand.Cards())
+    for (const auto& card : _dealerProxy->hands.front().Cards())
     {
         _cardsInPlay.push_back(card);
     }
     for (const auto& player : _playerProxies)
     {
-        for (const auto& card : player->hand.Cards())
+        for (const auto& hand : player->hands)
         {
-            _cardsInPlay.push_back(card);
+            for (const auto& card : hand.Cards())
+            {
+                _cardsInPlay.push_back(card);
+            }
         }
     }
     GetRunningCount();

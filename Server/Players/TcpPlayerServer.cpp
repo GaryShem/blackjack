@@ -29,10 +29,11 @@ void TcpPlayerServer::CardsShuffled()
     ReceiveMsg();
 }
 
-PlayerDecision TcpPlayerServer::GetDecision()
+PlayerDecision TcpPlayerServer::GetDecision(int handIndex)
 {
     nlohmann::json j;
     j["command"] = "RequestAction";
+    j["data"]["hand_index"] = handIndex;
     SendMsg(j.dump());
     std::string message = ReceiveMsg();
     nlohmann::json response = nlohmann::json::parse(message);
@@ -47,6 +48,10 @@ PlayerDecision TcpPlayerServer::GetDecision()
     else if (response["data"]["action"] == "Double")
     {
         return PlayerDecision::Double;
+    }
+    else if (response["data"]["action"] == "Split")
+    {
+        return PlayerDecision::Split;
     }
     else
     {
@@ -108,7 +113,10 @@ nlohmann::json TcpPlayerServer::Serialize(std::shared_ptr<IPlayer> player)
     j["rate"] = player->GetBet();
     j["insurance"] = player->GetInsurance();
     j["bank"] = player->GetBank();
-    j["hand"] = player->GetHand().Serialize();
+    for (auto& hand : _hands)
+    {
+        j["hands"].push_back(hand.Serialize());
+    }
 
     return j;
 }

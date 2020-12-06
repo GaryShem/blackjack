@@ -1,24 +1,29 @@
+#include <sstream>
 #include "Card.h"
 #include "IPlayer.h"
 
-void IPlayer::AcceptCard(Card& card)
+void IPlayer::AcceptCard(Card& card, int handIndex)
 {
-    _hand.AddCard(card);
+    if (_hands.empty() && handIndex == 0)
+    {
+        _hands.emplace_back();
+    }
+    _hands[handIndex].AddCard(card);
 }
 
-bool IPlayer::IsBusted()
+bool IPlayer::IsBusted(int handIndex)
 {
-    return _hand.GetSum() > 21;
+    return _hands[handIndex].IsBusted();
 }
 
-Hand& IPlayer::GetHand()
+Hand& IPlayer::GetHand(int handIndex)
 {
-    return _hand;
+    return _hands[handIndex];
 }
 
 void IPlayer::ClearHand()
 {
-    _hand.Clear();
+    _hands.clear();
     NotifyDealer(shared_from_this());
 }
 
@@ -34,10 +39,10 @@ void IPlayer::SetBet(int bet)
     NotifyDealer(shared_from_this());
 }
 
-void IPlayer::DoubleBet()
+void IPlayer::DoubleBet(int handIndex)
 {
     _bank -= _bet;
-    _bet *= 2;
+    _hands[handIndex].SetDoubled(true);
     NotifyDealer(shared_from_this());
 }
 
@@ -69,43 +74,59 @@ void IPlayer::SetBank(int bank)
 
 void IPlayer::Play(ICardDealer* cardDealer)
 {
-    PlayerDecision decision;
-    int maxTries = 25;
-    int currentTries = 0;
-    while (currentTries++ < maxTries && _hand.GetSum() < 21)
+    for (int handIndex = 0; handIndex < _hands.size(); handIndex++)
     {
-        if (IsBusted() || _hand.GetSum() == 21)
+        PlayerDecision decision;
+        int maxTries = 25;
+        int currentTries = 0;
+        while (currentTries++ < maxTries)
         {
-            return;
-        }
+            Hand& hand = _hands[handIndex];
+            if (hand.IsBusted() || hand.GetSum() == 21)
+            {
+                break;
+            }
 
-        decision = GetDecision();
-        if (decision == PlayerDecision::Hit)
-        {
-            cardDealer->DealFaceupCard(shared_from_this());
-        }
-        else if (decision == PlayerDecision::Stand)
-        {
-            return;
-        }
-        else if (decision == PlayerDecision::Double)
-        {
-            if (_hand.Cards().size() == 2 && _bank >= _bet)
+            decision = GetDecision(handIndex);
+            if (decision == PlayerDecision::Hit)
             {
-                DoubleBet();
-                cardDealer->DealFaceupCard(shared_from_this());
-                return;
+                cardDealer->DealFaceupCard(shared_from_this(), handIndex);
             }
-            else
+            else if (decision == PlayerDecision::Stand)
             {
-                continue;
+                break;
             }
+            else if (decision == PlayerDecision::Double)
+            {
+                if (hand.Cards().size() == 2 && _bank >= _bet)
+                {
+                    DoubleBet(handIndex);
+                    cardDealer->DealFaceupCard(shared_from_this(), handIndex);
+                    break;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            else if (decision == PlayerDecision::Split)
+            {
+                if (GetBank() >= GetBet())
+                {
+                    _hands.push_back(hand.Split());
+                    _hands.back().SetIndex(_hands.size()-1);
+                    SetBank(GetBank() - GetBet());
+                    cardDealer->DealFaceupCard(shared_from_this(), handIndex);
+                    cardDealer->DealFaceupCard(shared_from_this(), _hands.size() - 1);
+                }
+            }
+        }
+        if (currentTries >= maxTries)
+        {
+            continue;
         }
     }
-    if (currentTries >= maxTries)
-    {
-        return;
-    }
+
 }
 
 void IPlayer::SubscribeDealer(std::shared_ptr<IUpdatable> player)
@@ -148,24 +169,29 @@ void IPlayer::SetId(const std::string& id)
     NotifyDealer(shared_from_this());
 }
 
-bool IPlayer::HasNatural()
+bool IPlayer::HasNatural(int handIndex)
 {
-    return _hand.IsNatural();
+    return _hands[handIndex].IsNatural();
 }
 
 std::string IPlayer::ToString()
 {
     std::string result;
     std::string insurance = _insurance ? "true" : "false";
+    std::ostringstream strings;
     if (_isDealer)
     {
-        result = "Dealer: ";
-        result += _hand.ToString();
+        strings << "Dealer: ";
     }
     else
     {
-        result = "Player (" + _name + " " + _id + "): " + _hand.ToString() + " Bet: " + std::to_string(GetBet()) + ", Insurance: " + insurance;
+        strings << "Player (" + _name + " " + _id + "), Bet (" + std::to_string(GetBet()) + "), Insurance: (" + insurance + ")" << std::endl;
     }
+    for (int i = 0; i < _hands.size(); i++)
+    {
+        strings << "Hand " + std::to_string(i) + ": " + _hands[i].ToString() << std::endl;
+    }
+    result = strings.str();
     return result;
 }
 
@@ -189,64 +215,77 @@ void IPlayer::PayInsurance(bool dealerHasNatural)
 
 void IPlayer::PayMainBet(bool dealerNatural, int dealerSum)
 {
-
     if (IsDealer())
     {
         return;
     }
-    bool playerNatural = HasNatural();
-    int playerSum = _hand.GetSum();
     bool dealerBusted = dealerSum > 21;
-
-    //someone has blackjack
-    if (playerNatural || dealerNatural)
+    int totalBankChange = 0;
+    for (int handIndex = 0; handIndex < _hands.size(); handIndex++)
     {
-        //both have blackjack
-        if (playerNatural && dealerNatural)
-        {
-            SetBank(GetBank() + GetBet());
+        Hand& hand = _hands[handIndex];
+        int handBankChange = 0;
+        bool playerNatural = hand.IsNatural() && _hands.size() == 1;
+        int playerSum = hand.GetSum();
 
-        }
-        //player has blackjack
-        else if (playerNatural)
+        //someone has blackjack
+        if (playerNatural || dealerNatural)
         {
-            int pay = GetBet() * 2.5;
-            SetBank(GetBank() + pay);
+            //both have blackjack
+            if (playerNatural && dealerNatural)
+            {
+                handBankChange += GetBet();
+
+            }
+                //player has blackjack
+            else if (playerNatural)
+            {
+                handBankChange += GetBet() * 2.5;
+            }
+                //dealer has blackjack
+            else if (dealerNatural)
+            {
+                //nothing
+            }
         }
-        //dealer has blackjack
-        else if (dealerNatural)
+            //player busted
+        else if (hand.IsBusted())
         {
             //nothing
         }
+            //player did not bust, dealer busted
+        else if (dealerBusted)
+        {
+            handBankChange += GetBet() * 2;
+        }
+            //no bust, player has better hand
+        else if (playerSum > dealerSum)
+        {
+            handBankChange += GetBet() * 2;
+        }
+            //no bust, hands of same value
+        else if (playerSum == dealerSum)
+        {
+            handBankChange = GetBet();
+        }
+        //no bust, dealer has better hand
+        else if (playerSum < dealerSum)
+        {
+            //nothing
+        }
+        if (hand.IsDoubled())
+        {
+            handBankChange *= 2;
+        }
+        totalBankChange += handBankChange;
     }
-    //player busted
-    else if (IsBusted())
+    if (totalBankChange != 0)
     {
-        //nothing
+        SetBank(GetBank() + totalBankChange);
     }
-    //player did not bust, dealer busted
-    else if (dealerBusted)
-    {
-        SetBank(GetBank() + GetBet()*2);
-    }
-    //no bust, player has better hand
-    else if (playerSum > dealerSum)
-    {
-        SetBank(GetBank() + GetBet()*2);
-    }
-    //no bust, hands of same value
-    else if (playerSum == dealerSum)
-    {
-        SetBank(GetBank() + GetBet());
-    }
-    //no bust, dealer has better hand
-    else if (playerSum < dealerSum)
-    {
-        //nothing
-    }
-
     SetBet(0);
 }
+
 
 
 

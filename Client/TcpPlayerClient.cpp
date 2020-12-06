@@ -52,10 +52,10 @@ std::shared_ptr<PlayerProxy> TcpPlayerClient::Deserialize(std::string serialized
         proxy->id = j["data"]["id"];
         proxy->bet = j["data"]["rate"];
     }
-    for (auto it : j["data"]["hand"])
+    for (auto it : j["data"]["hands"])
     {
-        Card card = Card::Deserialize(it.dump());
-        proxy->hand.AddCard(card);
+        proxy->hands.emplace_back(Hand::Deserialize(it));
+        Hand& hand = proxy->hands.back();
     }
     return proxy;
 }
@@ -66,7 +66,7 @@ bool TcpPlayerClient::Process()
     nlohmann::json j = nlohmann::json::parse(message);
     if (j["command"] == "RequestAction")
     {
-        PlayerDecision decision = GetDecision();
+        PlayerDecision decision = GetDecision(j["data"]["hand_index"]);
         nlohmann::json response;
         response["command"] = "OK";
         switch (decision)
@@ -79,6 +79,9 @@ bool TcpPlayerClient::Process()
                 break;
             case Double:
                 response["data"]["action"] = "Double";
+                break;
+            case Split:
+                response["data"]["action"] = "Split";
                 break;
         }
         SendMsg(response.dump());
@@ -194,7 +197,7 @@ int TcpPlayerClient::RequestStartingBet(int minBet, int maxBet)
     return minBet;
 }
 
-PlayerDecision TcpPlayerClient::GetDecision()
+PlayerDecision TcpPlayerClient::GetDecision(int handIndex)
 {
     return Stand;
 }

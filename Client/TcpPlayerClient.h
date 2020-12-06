@@ -20,7 +20,7 @@ public:
     virtual void PlayerUpdated(std::shared_ptr<PlayerProxy> player);
     virtual void PlayerList(std::vector<std::shared_ptr<PlayerProxy>> players);
     virtual void CardsShuffled();
-    virtual PlayerDecision GetDecision();
+    virtual PlayerDecision GetDecision(int handIndex);
     virtual int RequestStartingBet(int minBet, int maxBet);
     virtual bool RequestInsuranceBet();
     void Connect(std::string ip = "127.0.0.1", u_short port = 8005);

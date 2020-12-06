@@ -7,9 +7,9 @@ class IPlayer;
 class ICardDealer
 {
 public:
-    virtual void DealFaceupCard(std::shared_ptr<IPlayer> player) = 0;
+    virtual void DealFaceupCard(std::shared_ptr<IPlayer> player, int handIndex) = 0;
 protected:
-    virtual void DealFacedownCard(std::shared_ptr<IPlayer> player) = 0;
+    virtual void DealFacedownCard(std::shared_ptr<IPlayer> player, int handIndex) = 0;
 };
 
 

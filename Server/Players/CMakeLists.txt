@@ -1,6 +1,6 @@
 project(players)
 
-add_library(players STATIC TcpPlayerServer.cpp TcpPlayerServer.h ConsolePlayer.cpp ConsolePlayer.h)
+add_library(players STATIC TcpPlayerServer.cpp TcpPlayerServer.h)
 
 target_include_directories(players PUBLIC .)
 

@@ -78,20 +78,15 @@ int Hand::GetHiddenSum() const
     return result;
 }
 
-Card& Hand::DrawCard()
-{
-    Card& card = _cards.back();
-    _cards.pop_back();
-    return card;
-}
-
 nlohmann::json Hand::Serialize()
 {
     nlohmann::json j;
     for (auto card : _cards)
     {
-        j.push_back(card.Serialize());
+        j["cards"].push_back(card.Serialize());
     }
+    j["hand_index"] = GetIndex();
+    j["is_doubled"] = _isDoubled;
     return j;
 }
 
@@ -113,4 +108,62 @@ bool Hand::IsSoftHand()
         aceCount--;
     }
     return aceCount > 0;
+}
+
+bool Hand::IsBusted() const
+{
+    return GetSum() > 21;
+}
+
+bool Hand::IsDoubled()
+{
+    return _isDoubled;
+}
+
+void Hand::SetDoubled(bool doubled)
+{
+    _isDoubled = doubled;
+}
+
+int Hand::GetIndex()
+{
+    return _index;
+}
+
+void Hand::SetIndex(int index)
+{
+    _index = index;
+}
+
+Hand Hand::Split()
+{
+    Hand hand;
+    hand.AddCard(_cards.back());
+    _cards.pop_back();
+
+    return hand;
+}
+
+Hand Hand::Deserialize(nlohmann::json json)
+{
+    Hand hand;
+    hand.SetIndex(json["hand_index"]);
+    hand.SetDoubled(json["is_doubled"]);
+    for (auto& it : json["cards"])
+    {
+        hand.AddCard(Card::Deserialize(it.dump()));
+    }
+    return hand;
+}
+
+bool Hand::IsSplittable() const
+{
+    if (_cards.size() != 2)
+    {
+        return false;
+    }
+    int value = _cards.front().GetSoftValue();
+    return std::all_of(_cards.begin(), _cards.end(), [&](auto& card) {
+        return card.GetSoftValue() == value;
+    });
 }
