@@ -3,7 +3,6 @@
 
 #include <string>
 #include "json.hpp"
-#include <SDKDDKVer.h>
 
 enum Ranks
 {

@@ -310,11 +310,12 @@ int TcpBotClient::GetTrueCount()
 TcpBotClient::~TcpBotClient()
 {
     std::cout << "Winnings:" << OwnProxy()->bank-1000 << std::endl;
-//    std::cout << "Name: " << _name << ", id == " << _id << std::endl;
-//    std::cout << "Bank == " << OwnProxy()->bank << std::endl;
-//    std::cout << "Bets:" << std::endl;
-//    for (std::pair<const int, int>& pair : betLog)
-//    {
-//        std::cout << pair.first << ": " << pair.second << std::endl;
-//    }
+    std::cout << "Name: " << _name << ", id == " << _id << std::endl;
+    std::cout << "Bank == " << OwnProxy()->bank << std::endl;
+    std::cout << "Bets:" << std::endl;
+    for (std::pair<const int, int>& pair : betLog)
+    {
+        std::cout << pair.first << ": " << pair.second << std::endl;
+    }
+    std::cout << "Decisions: " << std::endl;
 }

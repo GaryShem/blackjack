@@ -4,6 +4,7 @@
 #include <string>
 #include <queue>
 #include <boost/asio.hpp>
+#include <SDKDDKVer.h>
 
 using boost::asio::ip::tcp;
 

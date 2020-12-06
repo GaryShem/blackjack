@@ -67,6 +67,7 @@ bool TcpPlayerClient::Process()
     if (j["command"] == "RequestAction")
     {
         PlayerDecision decision = GetDecision(j["data"]["hand_index"]);
+
         nlohmann::json response;
         response["command"] = "OK";
         switch (decision)
